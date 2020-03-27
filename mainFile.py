@@ -67,7 +67,6 @@ def register():
     Button(register_screen, text="Register", width=10, height=1, bg="blue", command=register_user).pack()
 
 def register_user():
-    global userProfile
 
     # get username and password
     username_info = username.get()
@@ -78,21 +77,21 @@ def register_user():
     if os.path.isfile("users.json"):
         with open('users.json') as openfile:
             # Reading existing data from json file
-            data = json.loads(openfile)
-            print(data)
-            # adding the new user data
-            data.update(userProfile)
-            json.dumps(data, openfile)
+            existingUsers = json.load(openfile)
+        # adding the new user data
+        existingUsers.update(newUser)
+        newList = json.dumps(existingUsers)
+        with open('users.json', 'w') as openfile:
+            openfile.write(newList)
     else:
         with open("users.json", "w") as file:
-            json.dumps(newUser, file)
+            file.write(json_obj)
 
     username_entry.delete(0, END)
     password_entry.delete(0, END)
 
     Label(register_screen, text="Registration Success", fg="green", font=("calibri", 11)).pack()
 
-# define login function
 def login():
     global username_verify
     global password_verify
@@ -130,25 +129,18 @@ def login_verification():
 #The method listdir() returns a list containing the names of the entries in the directory given by path.
     list_of_files = os.listdir()
 
-#defining verification's conditions
-    if username1 in list_of_files:
-        file1 = open(username1, "r")   # open the file in read mode
+    if os.path.isfile("users.json"):
+        with open('users.json') as openfile:
+            # Reading existing data from json file
+            existingUsers = json.load(openfile)
 
-
-        #read the file,
-        #as splitlines() actually splits on the newline character,
-        #the newline character is not left hanging at the end of each line.
-
-        verify = file1.read().splitlines()
-
-        if password1 in verify:
-            login_success()
-
+        if username1 in existingUsers:
+            if (existingUsers[username1] == password1):
+                login_success()
+            else:
+                password_not_recognised()
         else:
-            password_not_recognised()
-
-    else:
-        user_not_found()
+            user_not_found()
 
 def login_success():
     global login_success_screen   # make login_success_screen global
